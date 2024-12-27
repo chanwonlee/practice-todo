@@ -2,55 +2,37 @@ import './App.css'
 import Header from "./components/Header.jsx";
 import Editor from "./components/Editor.jsx";
 import List from "./components/List.jsx";
-import {useRef, useState} from "react";
-
-const mockData = [
-  {
-    id: 1,
-    isDone: false,
-    content: "공부하기",
-    date: new Date().getTime()
-  },
-  {
-    id: 2,
-    isDone: false,
-    content: "운동하기",
-    date: new Date().getTime()
-  },
-  {
-    id: 3,
-    isDone: true,
-    content: "책읽기",
-    date: new Date().getTime()
-  },
-]
+import {useReducer, useRef} from "react";
+import {reducer, mockData} from "./components/AppUtils.jsx";
 
 function App() {
-  const [todos, setTodos] = useState(mockData);
-
+  const [todos, dispatcher] = useReducer(reducer, mockData);
   const index = useRef(4);
 
   const onCreate = (content) => {
-    const newTodo = {
-      id: index.current++,
-      isDone: false,
-      content: content,
-      date: new Date().getTime()
-    }
-    setTodos([newTodo, ...todos]);
+    dispatcher({
+      type: "CREATE",
+      data: {
+        id: index.current++,
+        isDone: false,
+        content: content,
+        date: new Date().getTime(),
+      }
+    })
   };
 
   const onUpdate = (targetId) => {
-    setTodos(todos.map((todo) =>
-        todo.id === targetId
-          ? {...todo, isDone: !todo.isDone}
-          : todo
-      )
-    );
+    dispatcher({
+      type: "UPDATE",
+      data: targetId
+    })
   }
 
   const onDelete = (targetId) => {
-    setTodos(todos.filter((todo) => todo.id !== targetId));
+    dispatcher({
+      type: "DELETE",
+      data: targetId
+    })
   }
 
   return (
